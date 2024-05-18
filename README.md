@@ -56,9 +56,6 @@
   <a href="https://www.instagram.com/swiv/" target="_blank">
     <img src="https://img.shields.io/static/v1?message=Instagram&logo=instagram&label=&color=E4405F&logoColor=white&labelColor=&style=plastic" height="30" alt="instagram logo"  />
   </a>
-  <a href="#" target="_blank">
-    <img src="https://img.shields.io/static/v1?message=Facebook&logo=facebook&label=&color=1877F2&logoColor=white&labelColor=&style=plastic" height="30" alt="facebook logo"  />
-  </a>
 </div>
 
 ###
