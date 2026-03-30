@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moaaz | Bug Bounty Portfolio</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="nebula" aria-hidden="true"></div>
+      <div id="star-field" class="star-field" aria-hidden="true"></div>
+
+      <nav id="navbar" class="navbar glass-card" aria-label="Primary">
+        <div class="nav-item">
+          <button class="nav-btn" data-section-target="home">Home</button>
+        </div>
+
+        <div class="nav-item has-dropdown">
+          <button class="nav-btn" data-section-target="tools">Tools</button>
+          <div class="dropdown glass-card">
+            <a href="/tools/google-dorks/">
+              <span class="dropdown-label">Google Dorks</span>
+              <span class="dropdown-desc">Advanced search operators for recon.</span>
+            </a>
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">Tool Soon 1</span>
+              <span class="dropdown-desc">Coming soon...</span>
+            </a>
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">Tool Soon 2</span>
+              <span class="dropdown-desc">Coming soon...</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-item has-dropdown">
+          <button class="nav-btn" data-dropdown-trigger>Scripts</button>
+          <div class="dropdown glass-card">
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">Recon Script</span>
+              <span class="dropdown-desc">Automated subdomain and asset discovery.</span>
+            </a>
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">Fuzzing Script</span>
+              <span class="dropdown-desc">Custom fuzzer for API endpoints.</span>
+            </a>
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">Soon...</span>
+              <span class="dropdown-desc">More scripts coming soon.</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-item has-dropdown">
+          <button class="nav-btn" data-dropdown-trigger>Oneliner</button>
+          <div class="dropdown glass-card">
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">XSS Payloads</span>
+              <span class="dropdown-desc">Handy one-liners for XSS testing.</span>
+            </a>
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">SQLi Payloads</span>
+              <span class="dropdown-desc">Quick SQL injection strings.</span>
+            </a>
+            <a href="#" aria-disabled="true">
+              <span class="dropdown-label">Soon...</span>
+              <span class="dropdown-desc">More payloads coming soon.</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-item has-dropdown">
+          <button class="nav-btn" data-dropdown-trigger>Links</button>
+          <div class="dropdown glass-card">
+            <a href="https://hackerone.com" target="_blank" rel="noopener noreferrer">
+              <span class="dropdown-label">HackerOne</span>
+              <span class="dropdown-desc">My HackerOne profile and activity.</span>
+            </a>
+            <a href="https://bugcrowd.com" target="_blank" rel="noopener noreferrer">
+              <span class="dropdown-label">Bugcrowd</span>
+              <span class="dropdown-desc">My Bugcrowd profile.</span>
+            </a>
+            <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <span class="dropdown-label">GitHub</span>
+              <span class="dropdown-desc">Check out my open-source tools.</span>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+              <span class="dropdown-label">LinkedIn</span>
+              <span class="dropdown-desc">Connect with me professionally.</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-item">
+          <button class="nav-btn" data-section-target="blog">Blog</button>
+        </div>
+        <div class="nav-item">
+          <button class="nav-btn" data-section-target="about">About Me</button>
+        </div>
+        <div class="nav-item">
+          <button class="nav-btn" data-section-target="contact">Contact</button>
+        </div>
+      </nav>
+
+      <div class="nav-main-spacer" aria-hidden="true"></div>
+
+      <main>
+        <section id="home" class="section active" aria-hidden="false">
+          <div class="hero">
+            <h1>M O A A Z</h1>
+            <p>
+              Security Researcher and Bug Bounty Hunter. Exploring the cosmic depths of
+              cybersecurity.
+            </p>
+            <div class="social-row">
+              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+              <a href="https://medium.com" target="_blank" rel="noopener noreferrer">Medium</a>
+              <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+            </div>
+          </div>
+        </section>
+
+        <section id="tools" class="section" aria-hidden="true">
+          <div class="hero" style="margin-bottom: 36px">
+            <h2 style="font-size: 2.1rem; margin: 0">Hunter's Toolkit</h2>
+            <p>Curated tools for effective vulnerability research.</p>
+          </div>
+          <div id="tools-grid" class="grid tools"></div>
+        </section>
+
+        <section id="about" class="section" aria-hidden="true">
+          <div class="two-col">
+            <div class="profile-wrap glass-card">
+              <img
+                src="https://picsum.photos/seed/hacker/800/800"
+                alt="Profile"
+                referrerpolicy="no-referrer"
+              />
+            </div>
+            <div>
+              <h2 style="font-size: 2.1rem; margin-top: 0">About Me</h2>
+              <p style="color: rgba(255, 255, 255, 0.75); line-height: 1.6">
+                I am a passionate security researcher with a focus on web application security and
+                automated vulnerability discovery. My journey started with a curiosity about how
+                things break, which evolved into a professional pursuit of making the digital world
+                safer.
+              </p>
+
+              <div class="stats">
+                <div class="glass-card">
+                  <strong style="color: var(--nebula-pink)">50+</strong>
+                  <span class="muted-label">Bounties Found</span>
+                </div>
+                <div class="glass-card">
+                  <strong style="color: var(--nebula-purple)">P1</strong>
+                  <span class="muted-label">Highest Severity</span>
+                </div>
+              </div>
+
+              <div class="social-row" style="justify-content: flex-start; margin-top: 18px">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a href="mailto:contact@example.com">Email</a>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <section id="blog" class="section" aria-hidden="true">
+          <div class="hero" style="margin-bottom: 36px">
+            <h2 style="font-size: 2.1rem; margin: 0">Blog</h2>
+            <p>Featured updates and latest insights from bug bounty work.</p>
+          </div>
+
+          <h2 class="section-title" style="margin-top: 48px">Featured Post</h2>
+          <div class="embed-wrap glass-card">
+            <iframe
+              src="https://www.linkedin.com/embed/feed/update/urn:li:share:7443155725591150592?collapsed=1"
+              height="670"
+              title="Embedded post"
+              allowfullscreen
+            ></iframe>
+          </div>
+
+          <div>
+            <div class="section-head">
+              <h2 class="section-title" style="margin: 0">Latest Insights</h2>
+              <a href="#">View all</a>
+            </div>
+            <div id="posts-grid" class="grid posts"></div>
+          </div>
+        </section>
+
+        <section id="contact" class="section" aria-hidden="true">
+          <div class="hero" style="margin-bottom: 24px">
+            <h2 style="font-size: 2.1rem; margin: 0">Get In Touch</h2>
+            <p>Interested in collaboration or security consulting? Connect with me below.</p>
+          </div>
+
+          <div class="contact-grid">
+            <a class="contact-item glass-card" href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+              <h3>LinkedIn</h3>
+              <small>Professional updates</small>
+            </a>
+            <a class="contact-item glass-card" href="https://medium.com" target="_blank" rel="noopener noreferrer">
+              <h3>Medium</h3>
+              <small>Writeups and notes</small>
+            </a>
+            <a class="contact-item glass-card" href="https://github.com" target="_blank" rel="noopener noreferrer">
+              <h3>GitHub</h3>
+              <small>Tools and projects</small>
+            </a>
+          </div>
+        </section>
+      </main>
+
+      <footer>&copy; 2026 MOAAZ // Made with love</footer>
+    </div>
+    <script src="script.js"></script>
+  </body>
+</html>
+
