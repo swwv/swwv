@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini Key Scanner</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg: #0a0b0e;
+    --surface: #111318;
+    --surface2: #181b22;
+    --border: #1f2330;
+    --accent: #00e5a0;
+    --accent2: #ff4d6a;
+    --accent3: #ffd166;
+    --text: #c9d1e0;
+    --text-dim: #4a5568;
+    --text-muted: #2d3748;
+    --glow: 0 0 20px rgba(0,229,160,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, #00e5a0, #00b37d);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: var(--glow);
+  }
+
+  .header-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #fff;
+  }
+
+  .header-title span { color: var(--accent); }
+
+  .header-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .badge {
+    margin-left: auto;
+    background: rgba(255, 77, 106, 0.12);
+    border: 1px solid rgba(255, 77, 106, 0.3);
+    color: var(--accent2);
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  /* Warning banner */
+  .warning {
+    background: rgba(255, 209, 102, 0.07);
+    border: 1px solid rgba(255, 209, 102, 0.25);
+    border-left: 3px solid var(--accent3);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 11px;
+    color: var(--accent3);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  /* Main grid */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+
+  /* Panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .panel-header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .panel-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #fff;
+    flex: 1;
+  }
+
+  .count-badge {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  .panel-body { padding: 12px; }
+
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 10px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    min-height: 140px;
+    line-height: 1.6;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-muted); }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover {
+    background: #00ffb3;
+    box-shadow: 0 0 30px rgba(0,229,160,0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:disabled {
+    background: var(--text-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    color: var(--text);
+    border-color: var(--text-dim);
+  }
+
+  /* Progress */
+  .progress-wrap {
+    display: none;
+    margin-top: 16px;
+  }
+
+  .progress-wrap.active { display: block; }
+
+  .progress-bar-bg {
+    background: var(--surface2);
+    border-radius: 4px;
+    height: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #00b37d);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+  }
+
+  .progress-text {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* Log */
+  .log-panel {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .log-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .live-dot {
+    width: 7px; height: 7px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .log-body {
+    padding: 12px;
+    max-height: 220px;
+    overflow-y: auto;
+    font-size: 11.5px;
+    line-height: 1.7;
+  }
+
+  .log-body::-webkit-scrollbar { width: 4px; }
+  .log-body::-webkit-scrollbar-track { background: transparent; }
+  .log-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .log-line { display: flex; gap: 8px; }
+  .log-line .ts { color: var(--text-muted); flex-shrink: 0; }
+  .log-line.info .msg { color: var(--text-dim); }
+  .log-line.ok .msg { color: var(--accent); }
+  .log-line.warn .msg { color: var(--accent3); }
+  .log-line.err .msg { color: var(--accent2); }
+  .log-line.hit .msg { color: var(--accent); font-weight: 600; }
+
+  /* Results */
+  .results-panel {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .results-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .results-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    flex: 1;
+  }
+
+  .results-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+  }
+
+  .stat { display: flex; align-items: center; gap: 4px; }
+  .stat-val { font-weight: 600; }
+  .stat-val.green { color: var(--accent); }
+  .stat-val.red { color: var(--accent2); }
+  .stat-val.yellow { color: var(--accent3); }
+
+  .results-body {
+    padding: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .result-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface2);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s;
+  }
+
+  .result-item.valid { border-left-color: var(--accent); }
+  .result-item.invalid { border-left-color: var(--accent2); }
+  .result-item.error { border-left-color: var(--accent3); }
+
+  .result-status {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .result-content { flex: 1; min-width: 0; }
+
+  .result-key {
+    font-weight: 600;
+    color: #fff;
+    font-size: 12px;
+    word-break: break-all;
+  }
+
+  .result-key .key-mask { color: var(--text-dim); }
+  .result-key .key-visible { color: var(--accent); }
+
+  .result-meta {
+    font-size: 10.5px;
+    color: var(--text-dim);
+    margin-top: 3px;
+  }
+
+  .result-label {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-right: 6px;
+  }
+
+  .label-valid { background: rgba(0,229,160,0.12); color: var(--accent); }
+  .label-invalid { background: rgba(255,77,106,0.12); color: var(--accent2); }
+  .label-error { background: rgba(255,209,102,0.12); color: var(--accent3); }
+  .label-crawled { background: rgba(99,102,241,0.12); color: #818cf8; }
+  .label-manual { background: rgba(34,211,238,0.12); color: #22d3ee; }
+
+  .copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .empty-state .icon { font-size: 28px; margin-bottom: 8px; }
+
+  /* Export */
+  .export-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-sm {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    transition: all 0.15s;
+  }
+
+  .btn-sm:hover { color: var(--accent); border-color: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-icon">🔑</div>
+    <div>
+      <div class="header-title">Gemini <span>Key Scanner</span></div>
+      <div class="header-sub">Crawl URLs for exposed API keys · Test via <code style="color:var(--accent);font-size:10px">/v1beta/files</code> · Shows HTTP status codes</div>
+    </div>
+    <div class="badge">SECURITY TOOL</div>
+  </div>
+
+  <div class="warning">
+    ⚠️ <strong>Browser CORS Limitation:</strong> Crawling external URLs is blocked by browsers unless the target server sends CORS headers. Key extraction from crawled pages may fail silently for most domains. Direct key testing (paste keys) works fully. Use this in a local HTTP server or browser extension context for full crawl functionality.
+  </div>
+
+  <div class="grid">
+    <!-- URLs panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="dot" style="background:#818cf8"></div>
+        <div class="panel-title">🌐 URLs to Crawl</div>
+        <div class="count-badge" id="urlCount">0 URLs</div>
+      </div>
+      <div class="panel-body">
+        <textarea id="urlInput" placeholder="https://example.com&#10;https://target.io&#10;https://app.domain.com&#10;&#10;One URL per line — will crawl HTML + linked JS files" rows="8" oninput="updateCounts()"></textarea>
+      </div>
+    </div>
+
+    <!-- Keys panel -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="dot" style="background:#22d3ee"></div>
+        <div class="panel-title">🗝️ API Keys (Direct Test)</div>
+        <div class="count-badge" id="keyCount">0 Keys</div>
+      </div>
+      <div class="panel-body">
+        <textarea id="keyInput" placeholder="AIzaSyAbCdEfGhIjKlMnOpQrStUvWx1234567&#10;AIzaSyXyZaBcDeFgHiJkLmNoPqRsTuVwXy890&#10;&#10;One key per line — tested directly against Gemini API" rows="8" oninput="updateCounts()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn btn-primary" id="runBtn" onclick="startScan()">▶ RUN SCAN</button>
+    <button class="btn btn-secondary" onclick="clearAll()">✕ Clear</button>
+    <div style="margin-left:auto; font-size:11px; color:var(--text-muted)">
+      Tests: <span id="testCount" style="color:var(--text-dim)">0</span> queued
+    </div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-bar-bg"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">Initializing...</div>
+  </div>
+
+  <!-- Log -->
+  <div class="log-panel">
+    <div class="log-header">
+      <div class="live-dot" id="liveDot" style="display:none"></div>
+      <span>CONSOLE</span>
+      <button class="btn-sm" onclick="clearLog()" style="margin-left:auto">Clear</button>
+    </div>
+    <div class="log-body" id="logBody">
+      <div class="log-line info"><span class="ts">--:--:--</span><span class="msg">Ready. Add URLs and/or API keys, then click RUN SCAN.</span></div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results-panel" id="resultsPanel">
+    <div class="results-header">
+      <div class="results-title">📋 RESULTS</div>
+      <div class="results-stats">
+        <div class="stat">Total: <span class="stat-val" id="totalStat">0</span></div>
+        <div class="stat"><span class="stat-val green" id="validStat">0</span> valid</div>
+        <div class="stat"><span class="stat-val red" id="invalidStat">0</span> invalid</div>
+        <div class="stat"><span class="stat-val yellow" id="errorStat">0</span> error</div>
+      </div>
+    </div>
+    <div class="results-body" id="resultsBody">
+      <div class="empty-state"><div class="icon">⬆</div>Run a scan to see results here</div>
+    </div>
+    <div class="export-bar">
+      <button class="btn-sm" onclick="exportResults('all')">Export All</button>
+      <button class="btn-sm" onclick="exportResults('valid')">Export Valid Only</button>
+      <button class="btn-sm" onclick="copyValid()">Copy Valid Keys</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const KEY_REGEX = /AIza[0-9A-Za-z\-_]{35}/g;
+let results = [];
+let scanning = false;
+
+function ts() {
+  return new Date().toTimeString().slice(0,8);
+}
+
+function log(msg, type='info') {
+  const body = document.getElementById('logBody');
+  const line = document.createElement('div');
+  line.className = `log-line ${type}`;
+  line.innerHTML = `<span class="ts">${ts()}</span><span class="msg">${msg}</span>`;
+  body.appendChild(line);
+  body.scrollTop = body.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('logBody').innerHTML = '';
+}
+
+function updateCounts() {
+  const urls = parseLines(document.getElementById('urlInput').value);
+  const keys = parseLines(document.getElementById('keyInput').value).filter(k => KEY_REGEX.test(k));
+  KEY_REGEX.lastIndex = 0;
+  document.getElementById('urlCount').textContent = urls.length + ' URLs';
+  document.getElementById('keyCount').textContent = keys.length + ' Keys';
+  document.getElementById('testCount').textContent = urls.length + keys.length;
+}
+
+function parseLines(txt) {
+  return txt.split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+function setProgress(pct, txt) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent = txt;
+}
+
+async function testKey(key, source, sourceType) {
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/files?key=${encodeURIComponent(key)}`;
+  let httpStatus = null;
+  try {
+    const resp = await fetch(endpoint, { method: 'GET' });
+    httpStatus = resp.status;
+    let data = {};
+    try { data = await resp.json(); } catch(_) {}
+
+    if (resp.ok) {
+      // 200 — key works
+      const fileCount = data.files ? data.files.length : 0;
+      return { key, source, sourceType, status: 'valid', httpStatus, detail: `${fileCount} file(s) listed`, endpoint };
+    } else {
+      // Non-2xx — key exists but restricted / invalid
+      const msg = data.error?.message || resp.statusText || 'API error';
+      return { key, source, sourceType, status: 'invalid', httpStatus, detail: msg, endpoint };
+    }
+  } catch(e) {
+    return { key, source, sourceType, status: 'error', httpStatus, detail: e.message, endpoint };
+  }
+}
+
+async function crawlURL(url) {
+  const keys = new Set();
+  try {
+    log(`Crawling ${url}`, 'info');
+    const resp = await fetch(url, { mode: 'cors', signal: AbortSignal.timeout(10000) });
+    const html = await resp.text();
+    const found = html.matchAll(KEY_REGEX);
+    for (const m of found) keys.add({ key: m[0], src: url + ' (HTML)' });
+
+    // Extract JS URLs
+    const jsSrcs = [...html.matchAll(/(?:src|href)=["']([^"']+\.js[^"']*)/gi)].map(m => m[1]);
+    for (const js of jsSrcs.slice(0, 10)) {
+      const jsUrl = js.startsWith('http') ? js : new URL(js, url).href;
+      try {
+        const jsResp = await fetch(jsUrl, { mode: 'cors', signal: AbortSignal.timeout(8000) });
+        const jsBody = await jsResp.text();
+        const jsFound = jsBody.matchAll(KEY_REGEX);
+        for (const m of jsFound) keys.add({ key: m[0], src: jsUrl + ' (JS)' });
+      } catch(e) { /* skip */ }
+    }
+
+    log(`Found ${keys.size} key(s) at ${url}`, keys.size > 0 ? 'ok' : 'info');
+  } catch(e) {
+    log(`✕ CORS/network error: ${url} — ${e.message}`, 'err');
+  }
+  return [...keys];
+}
+
+async function startScan() {
+  if (scanning) return;
+  scanning = true;
+
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ SCANNING...';
+  document.getElementById('liveDot').style.display = 'block';
+  document.getElementById('progressWrap').classList.add('active');
+  results = [];
+  renderResults();
+  setProgress(0, 'Starting...');
+
+  const urls = parseLines(document.getElementById('urlInput').value);
+  const manualKeys = parseLines(document.getElementById('keyInput').value)
+    .filter(k => { KEY_REGEX.lastIndex=0; return KEY_REGEX.test(k); })
+    .map(k => { KEY_REGEX.lastIndex=0; return k.match(KEY_REGEX)?.[0]; })
+    .filter(Boolean);
+
+  const allKeys = []; // {key, source, sourceType}
+
+  // Phase 1: Crawl URLs
+  if (urls.length > 0) {
+    log(`[+] Phase 1: Crawling ${urls.length} URL(s)...`, 'warn');
+    for (let i = 0; i < urls.length; i++) {
+      setProgress(((i+1)/urls.length)*40, `Crawling ${i+1}/${urls.length}: ${urls[i]}`);
+      const found = await crawlURL(urls[i]);
+      for (const f of found) {
+        if (!allKeys.find(k => k.key === f.key)) {
+          allKeys.push({ key: f.key, source: f.src, sourceType: 'crawled' });
+        }
+      }
+    }
+    log(`[+] Crawl complete. Found ${allKeys.length} unique key(s).`, 'ok');
+  }
+
+  // Phase 2: Add manual keys
+  if (manualKeys.length > 0) {
+    log(`[+] Phase 2: Adding ${manualKeys.length} manual key(s)...`, 'warn');
+    for (const k of manualKeys) {
+      if (!allKeys.find(e => e.key === k)) {
+        allKeys.push({ key: k, source: 'Manual input', sourceType: 'manual' });
+      }
+    }
+  }
+
+  if (allKeys.length === 0) {
+    log('No keys found or entered. Aborting.', 'err');
+    done(btn);
+    return;
+  }
+
+  // Phase 3: Test all keys
+  log(`[+] Phase 3: Testing ${allKeys.length} key(s) against Gemini API...`, 'warn');
+
+  for (let i = 0; i < allKeys.length; i++) {
+    const entry = allKeys[i];
+    const pct = 40 + ((i+1)/allKeys.length)*60;
+    setProgress(pct, `Testing key ${i+1}/${allKeys.length}...`);
+    log(`Testing: ${maskKey(entry.key)} (${entry.sourceType})`, 'info');
+
+    const result = await testKey(entry.key, entry.source, entry.sourceType);
+    results.push(result);
+    renderResults();
+
+    const sc = result.httpStatus ? ` [HTTP ${result.httpStatus}]` : '';
+    if (result.status === 'valid') {
+      log(`[!!!] GEMINI ENABLED → ${maskKey(result.key)}${sc} | ${result.detail}`, 'hit');
+    } else {
+      log(`[✕] ${result.status.toUpperCase()}${sc} → ${maskKey(result.key)} | ${result.detail}`, result.status === 'error' ? 'warn' : 'err');
+    }
+
+    await new Promise(r => setTimeout(r, 150)); // rate limit courtesy delay
+  }
+
+  const validCount = results.filter(r => r.status === 'valid').length;
+  log(`[+] Done. ${validCount}/${allKeys.length} keys are VALID Gemini keys.`, validCount > 0 ? 'hit' : 'ok');
+  setProgress(100, `Complete — ${validCount} valid / ${allKeys.length} total`);
+  done(btn);
+}
+
+function done(btn) {
+  scanning = false;
+  btn.disabled = false;
+  btn.textContent = '▶ RUN SCAN';
+  document.getElementById('liveDot').style.display = 'none';
+}
+
+function maskKey(key) {
+  if (!key) return '';
+  return key.slice(0, 8) + '••••••••••••••••••••••••••••' + key.slice(-4);
+}
+
+function maskKeyHtml(key) {
+  if (!key) return '';
+  return `<span class="key-mask">${key.slice(0,8)}••••••••••••••••</span><span class="key-visible">${key.slice(-6)}</span>`;
+}
+
+function renderResults() {
+  const body = document.getElementById('resultsBody');
+  const valid = results.filter(r => r.status === 'valid').length;
+  const invalid = results.filter(r => r.status === 'invalid').length;
+  const errors = results.filter(r => r.status === 'error').length;
+
+  document.getElementById('totalStat').textContent = results.length;
+  document.getElementById('validStat').textContent = valid;
+  document.getElementById('invalidStat').textContent = invalid;
+  document.getElementById('errorStat').textContent = errors;
+
+  if (results.length === 0) {
+    body.innerHTML = '<div class="empty-state"><div class="icon">⬆</div>Run a scan to see results here</div>';
+    return;
+  }
+
+  body.innerHTML = results.slice().reverse().map(r => {
+    const icon = r.status === 'valid' ? '✅' : r.status === 'invalid' ? '❌' : '⚠️';
+    const typeLabel = r.sourceType === 'crawled'
+      ? '<span class="result-label label-crawled">CRAWLED</span>'
+      : '<span class="result-label label-manual">MANUAL</span>';
+    const statusLabel = r.status === 'valid'
+      ? '<span class="result-label label-valid">VALID</span>'
+      : r.status === 'invalid'
+      ? '<span class="result-label label-invalid">INVALID</span>'
+      : '<span class="result-label label-error">ERROR</span>';
+    const scColor = !r.httpStatus ? '#4a5568'
+      : r.httpStatus === 200 ? 'var(--accent)'
+      : r.httpStatus === 400 ? '#f97316'
+      : r.httpStatus === 401 ? '#a78bfa'
+      : r.httpStatus === 403 ? '#fb923c'
+      : r.httpStatus === 429 ? 'var(--accent3)'
+      : 'var(--accent2)';
+    const scLabel = r.httpStatus
+      ? `<span class="result-label" style="background:rgba(255,255,255,0.05);color:${scColor};border:1px solid ${scColor};opacity:0.85">HTTP ${r.httpStatus}</span>`
+      : `<span class="result-label" style="background:rgba(255,255,255,0.04);color:var(--text-muted)">NO RESPONSE</span>`;
+    return `
+      <div class="result-item ${r.status}">
+        <div class="result-status">${icon}</div>
+        <div class="result-content">
+          <div class="result-key">${maskKeyHtml(r.key)}</div>
+          <div class="result-meta">${typeLabel}${statusLabel}${scLabel}${escHtml(r.detail)}</div>
+          <div class="result-meta" style="margin-top:3px;color:var(--text-muted);font-size:10px">⤷ ${escHtml(r.source)}</div>
+        </div>
+        <button class="copy-btn" onclick="copyKey('${escHtml(r.key)}')">Copy</button>
+      </div>`;
+  }).join('');
+}
+
+function escHtml(str) {
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyKey(key) {
+  navigator.clipboard.writeText(key).catch(() => {});
+}
+
+function copyValid() {
+  const valid = results.filter(r => r.status === 'valid').map(r => r.key).join('\n');
+  if (!valid) { log('No valid keys to copy.', 'warn'); return; }
+  navigator.clipboard.writeText(valid).then(() => log('Valid keys copied to clipboard.', 'ok'));
+}
+
+function exportResults(type) {
+  const data = type === 'valid' ? results.filter(r => r.status === 'valid') : results;
+  if (!data.length) { log('No results to export.', 'warn'); return; }
+  const lines = data.map(r =>
+    `${r.status.toUpperCase()} | HTTP ${r.httpStatus ?? 'N/A'} | ${r.key} | ${r.sourceType} | ${r.source} | ${r.detail}`
+  ).join('\n');
+  const blob = new Blob([lines], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = type === 'valid' ? 'gemini_valid_keys.txt' : 'gemini_scan_results.txt';
+  a.click();
+  log(`Exported ${data.length} result(s).`, 'ok');
+}
+
+function clearAll() {
+  document.getElementById('urlInput').value = '';
+  document.getElementById('keyInput').value = '';
+  results = [];
+  renderResults();
+  clearLog();
+  log('Cleared.', 'info');
+  updateCounts();
+  document.getElementById('progressWrap').classList.remove('active');
+}
+
+updateCounts();
+</script>
+</body>
+</html>
