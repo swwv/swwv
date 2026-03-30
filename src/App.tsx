@@ -82,3 +82,33 @@ const MOCK_POSTS: Post[] = [
     url: 'https://www.linkedin.com/posts/swiv_bugbounty-cybersecurity-websecurity-activity-7431041858203439105-yWlZ'
   },
 ];
+
+export default function App() {
+  const [activeSection, setActiveSection] = useState('home');
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div className="min-h-screen selection:bg-nebula-purple/30">
+      <StarField />
+      <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
+
+      <main className="container mx-auto px-4 pt-32 pb-20">
+        <AnimatePresence mode="wait">
+          {activeSection === 'home' && (
+            // ... rest of the JSX
+          )}
+        </AnimatePresence>
+      </main>
+
+      <footer className="fixed bottom-6 left-1/2 -translate-x-1/2 text-[10px] text-white/20 uppercase tracking-[0.3em] font-medium">
+        &copy; 2026 MOAAZ // Made with ❤️
+      </footer>
+    </div>
+  );
+}
