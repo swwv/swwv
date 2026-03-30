@@ -559,20 +559,3 @@ export default function App() {
     </div>
   );
 }
-
-export default function App() {
-  const [activeSection, setActiveSection] = useState('home');
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  return (
-    <div className="min-h-screen selection:bg-nebula-purple/30">
-      {/* ... rest of JSX ... */}
-    </div>
-  );
-}
