@@ -58,7 +58,7 @@ function parseKeys() {
 async function testKey(key) {
   try {
     // PoC endpoint (matches curl)
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(key)}`);
     const data = await res.json();
 
     if (res.ok && data.models) {
