@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gemini Key Tester</title>
+<title>Gemini Key Tester (PoC)</title>
 <style>
   body {
     background: #0a0b0e;
@@ -30,18 +30,14 @@
     font-weight: bold;
   }
 
-  .result {
-    margin-top: 15px;
-    font-size: 13px;
-  }
-
+  .result { margin-top: 15px; font-size: 13px; }
   .valid { color: #00e5a0; }
   .invalid { color: #ff4d6a; }
 </style>
 </head>
 <body>
 
-<h2>🗝️ Gemini API Key Tester</h2>
+<h2>🗝️ Gemini API Key Tester (PoC)</h2>
 
 <textarea id="keyInput" placeholder="Enter API keys (one per line)"></textarea>
 
@@ -61,8 +57,11 @@ function parseKeys() {
 
 async function testKey(key) {
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key==${key}`);
-    if (res.ok) {
+    // PoC endpoint (matches curl)
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    const data = await res.json();
+
+    if (res.ok && data.models) {
       return { key, status: 'valid' };
     } else {
       return { key, status: 'invalid' };
